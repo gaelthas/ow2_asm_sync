@@ -1,0 +1,30 @@
+name: Sync GitLab Project
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub Repository
+        uses: actions/checkout@v4
+
+      - name: Get GitLab Project URL
+        id: get-gitlab-project-url
+        run: |
+          echo "::set-output name=url::https://gitlab.ow2.org/asm/asm"
+
+      - name: Clone GitLab Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.get-gitlab-project-url.outputs.url }}
+          ref: master
+
+      - name: Sync Files
+        run: |
+          cp -r ./gitlab/* ./
+
+      - name: Push to GitHub
+        uses: actions/push@v4
